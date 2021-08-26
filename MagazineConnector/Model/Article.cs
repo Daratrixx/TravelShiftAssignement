@@ -8,6 +8,7 @@ namespace MagazineConnector.Model
     public class Article
     {
         public long id { get; set; }
+        public long idAuthor { get; set; }
         public string category { get; set; }
         public string title { get; set; }
         public string content { get; set; }
