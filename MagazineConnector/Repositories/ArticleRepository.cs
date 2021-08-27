@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
 namespace MagazineConnector.Repositories
@@ -23,17 +24,12 @@ namespace MagazineConnector.Repositories
 
             if (!string.IsNullOrWhiteSpace(parameters.filterField) && !string.IsNullOrWhiteSpace(parameters.filterValue))
             {
-                var filterFieldProperty = typeof(Model.Article).GetProperty(parameters.filterField);
-                output = output.Where(x => filterFieldProperty.GetValue(x).ToString() == parameters.filterValue);
+                output = output.Where($"{parameters.filterField} == @0", parameters.filterValue);
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.orderField))
             {
-                var orderFieldProperty = typeof(Model.Article).GetProperty(parameters.orderField);
-                if (parameters.orderAscending)
-                    output = output.OrderBy(x => orderFieldProperty.GetValue(x).ToString());
-                else
-                    output = output.OrderByDescending(x => orderFieldProperty.GetValue(x).ToString());
+                output = output.OrderBy($"{parameters.orderField}{(parameters.orderAscending ? "" : " DESC")}");
             }
 
             output = output.Skip(parameters.page * parameters.count).Take(parameters.count);
