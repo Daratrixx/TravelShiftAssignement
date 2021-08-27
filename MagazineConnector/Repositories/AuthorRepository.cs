@@ -7,17 +7,22 @@ namespace MagazineConnector.Repositories
 {
     public class AuthorRepository
     {
+        private Contexts.BlogContext _context;
+        public AuthorRepository(Contexts.BlogContext context)
+        {
+            _context = context;
+        }
         public IEnumerable<Model.Author> GetAuthors()
         {
-            throw new NotImplementedException();
+            return _context.Authors;
         }
         public Model.Author GetAuthorById(long id)
         {
-            throw new NotImplementedException();
+            return _context.Authors.Where(x => x.id == id).FirstOrDefault();
         }
-        public Model.Author GetAuthorByName(long name)
+        public Model.Author GetAuthorByName(string name)
         {
-            throw new NotImplementedException();
+            return _context.Authors.Where(x => x.name == name).FirstOrDefault();
         }
     }
 }

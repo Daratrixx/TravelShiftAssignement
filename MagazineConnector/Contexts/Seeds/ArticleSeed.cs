@@ -16,6 +16,7 @@ namespace MagazineConnector.Contexts.Seeds
 
         public void SeedData()
         {
+            if (_context.Articles.Count() > 0) return;
             _nextId = 1;
             CreateAndAddNewArticle(1, "Sport", "The guy did the thing", SeedTexts.LoremIpsum, DateTime.Parse("2021-01-12"), 2457);
             CreateAndAddNewArticle(2, "Media", "149 days until Elden Ring", SeedTexts.LoremIpsum, DateTime.Parse("2021-08-26"), 99999);

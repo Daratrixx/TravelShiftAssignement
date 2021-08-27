@@ -16,6 +16,7 @@ namespace MagazineConnector.Contexts.Seeds
 
         public void SeedData()
         {
+            if (_context.Authors.Count() > 0) return;
             _nextId = 1;
             CreateAndAddNewAuthor("John Doe");
             CreateAndAddNewAuthor("Solaire of Astora");
