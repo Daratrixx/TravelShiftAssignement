@@ -14,25 +14,41 @@ namespace MagazineConnector.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private readonly BlogContext _context;
+        private readonly Repositories.AuthorRepository _repository;
 
-        public AuthorsController(BlogContext context)
+        public AuthorsController(Repositories.AuthorRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: api/Authors
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
-            return await _context.Authors.ToListAsync();
+            var authors = await Task.Run(() => _repository.GetAuthors().ToArray());
+            return authors;
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
+        [HttpGet("ById/{id}")]
         public async Task<ActionResult<Author>> GetAuthor(long id)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = await Task.Run(() => _repository.GetAuthorById(id));
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            return author;
+        }
+
+        // GET: api/Authors/5
+        [HttpGet("ByName/{name}")]
+        public async Task<ActionResult<Author>> GetAuthorByName(string name)
+        {
+            var author = await Task.Run(() => _repository.GetAuthorByName(name));
 
             if (author == null)
             {
@@ -52,11 +68,9 @@ namespace MagazineConnector.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(author).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await Task.Run(() => _repository.UpdateAuthor(author));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -70,7 +84,7 @@ namespace MagazineConnector.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Authors
@@ -78,8 +92,7 @@ namespace MagazineConnector.Controllers
         [HttpPost]
         public async Task<ActionResult<Author>> PostAuthor(Author author)
         {
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
+            author = await Task.Run(() => _repository.CreateAuthor(author));
 
             return CreatedAtAction("GetAuthor", new { id = author.id }, author);
         }
@@ -88,21 +101,24 @@ namespace MagazineConnector.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(long id)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = await Task.Run(() => _repository.GetAuthorById(id));
             if (author == null)
             {
                 return NotFound();
             }
 
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
+            await Task.Run(() => _repository.DeleteAuthor(id));
 
-            return NoContent();
+            return Ok();
         }
 
         private bool AuthorExists(long id)
         {
-            return _context.Authors.Any(e => e.id == id);
+            return _repository.AuthorExists(id);
+        }
+        private bool AuthorExists(string name)
+        {
+            return _repository.AuthorExists(name);
         }
     }
 }
